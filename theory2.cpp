@@ -14,20 +14,20 @@ using namespace std ;
 //#define input_file "input.txt"
 //#define output_file "output.txt"
 
-//¶¨Òå¾ØÕóµÄ¸ß¶È¡¢¿í¶È
+//å®šä¹‰çŸ©é˜µçš„é«˜åº¦ã€å®½åº¦
 #define MAXHEIGHT 32
 #define MAXWIDTH 32
 
-//µãµÄÊôĞÔ£¨ÖÖÀà£©
+//ç‚¹çš„å±æ€§ï¼ˆç§ç±»ï¼‰
 #define is_LEAF 0
 #define Splited 1
 #define To_Be_Splited 2
 #define Extended 3
 
 
-//extension_round  À©Õ¹ÂÖÊı
+//extension_round  æ‰©å±•è½®æ•°
 
-//ÈçÏÂÎª´æÏÂµÄ¾ØÕó×´Ì¬
+//å¦‚ä¸‹ä¸ºå­˜ä¸‹çš„çŸ©é˜µçŠ¶æ€
 bool original_matrix[MAXHEIGHT][MAXWIDTH]={false} ;
 //bitset<MAXWIDTH> ori_point[MAXHEIGHT] ;
 
@@ -36,24 +36,24 @@ unordered_map< int, bitset<MAXWIDTH>> Hash_to_bitset ;
 
 
 //=====================
-//Í¼ÂÛ²¿·Ö
-//Ô­Í¼±ß²úÉú×Ô³ÌĞòµÄÁ½¸öµØ·½£º¢Ùextension  ¢ÚÓÃÒ¶×Ó½áµãÓëÃ»ÓĞÂú×ãµÄµãÁ¬±ß
+//å›¾è®ºéƒ¨åˆ†
+//åŸå›¾è¾¹äº§ç”Ÿè‡ªç¨‹åºçš„ä¸¤ä¸ªåœ°æ–¹ï¼šâ‘ extension  â‘¡ç”¨å¶å­ç»“ç‚¹ä¸æ²¡æœ‰æ»¡è¶³çš„ç‚¹è¿è¾¹
 
 
-//Ô­Í¼±ß
+//åŸå›¾è¾¹
 struct EDGE{
     int from, to, nxt ;
-}Edges[MAXHEIGHT*MAXWIDTH<<1] ;
-int head[MAXHEIGHT*MAXWIDTH] , idx_edge ;
+}Edges[(MAXHEIGHT*MAXWIDTH<<1)+1] ;
+int head[MAXHEIGHT*MAXWIDTH+1] , idx_edge ;
 int addedge(int from, int to) {
     Edges[++idx_edge] = {from,to,head[from]} ;
     head[from] = idx_edge ;
     return idx_edge ;
 }
 
-//·´Í¼±ß
-EDGE Transpose_Graph_Edges[MAXHEIGHT*MAXWIDTH<<1] ;
-int head_in_Transpose_Graph[MAXHEIGHT*MAXWIDTH] , idx_edge_in_Transpose_Graph ;
+//åå›¾è¾¹
+EDGE Transpose_Graph_Edges[(MAXHEIGHT*MAXWIDTH<<1)+1] ;
+int head_in_Transpose_Graph[MAXHEIGHT*MAXWIDTH+1] , idx_edge_in_Transpose_Graph ;
 int add_Transpose_Graph_edge(int from, int to) {
     Transpose_Graph_Edges[++idx_edge_in_Transpose_Graph] = {from,to,head_in_Transpose_Graph[from]} ;
     head_in_Transpose_Graph[from] = idx_edge_in_Transpose_Graph ;
@@ -61,19 +61,19 @@ int add_Transpose_Graph_edge(int from, int to) {
 }
 
 
-//µã
-struct NODE {//¸Ã½á¹¹Ìå´æ´¢µãµÄÊôĞÔ
+//ç‚¹
+struct NODE {//è¯¥ç»“æ„ä½“å­˜å‚¨ç‚¹çš„å±æ€§
     int kind ;
     bool is_original ;  
     int size_of_original_line , *whichline ;
     ~ NODE() {
         delete[] whichline ;
     }
-}Nodes[MAXHEIGHT*MAXWIDTH] ;
+}Nodes[MAXHEIGHT*MAXWIDTH+1] ;
 int idx_node ;
 int addnode(bitset<MAXWIDTH> bs, int kind, bool is_original, int which_line) {
-    //is_originalÎªfalseÊ±£¬Ä¬ÈÏwhichline=-1
-    //¸Ãº¯ÊıÖ»ÓĞÔÚ´´½¨Î´²úÉú¹ıµÄ½áµãÊ±²ÅÄÜÊ¹ÓÃ
+    //is_originalä¸ºfalseæ—¶ï¼Œé»˜è®¤whichline=-1
+    //è¯¥å‡½æ•°åªæœ‰åœ¨åˆ›å»ºæœªäº§ç”Ÿè¿‡çš„ç»“ç‚¹æ—¶æ‰èƒ½ä½¿ç”¨
     idx_node++ ;
     Nodes[idx_node].kind = kind ;
     Nodes[idx_node].is_original = is_original ;
@@ -97,15 +97,11 @@ void setnode(int index_of_node, int kind) {
 }
 
 
-
-
-
-
 //=====================
 
 
 /******************** */
-//ÈçÏÂÎª ÊäÈëÊä³ö Ä£¿é
+//å¦‚ä¸‹ä¸º è¾“å…¥è¾“å‡º æ¨¡å—
 void input_matrix() {
     int x=0,y=0 ;
     char c = getchar() ;
@@ -130,17 +126,17 @@ void show_matrix() {
 }
 
 /******************** */
-int to_be_splited_point[(MAXWIDTH)+1],   sizeof_to_be_splited_point ;
-int extended_point[MAXWIDTH*(MAXHEIGHT+1)+1],        sizeof_extended_point ; 
+int to_be_splited_point[MAXHEIGHT+1],   sizeof_to_be_splited_point ;
+int extended_point[MAXWIDTH*(MAXHEIGHT+2)+1],        sizeof_extended_point ; 
 
 /******************** */
-//ÈçÏÂÎª ¾ßÌåÖ´ĞĞ Ä£¿é
+//å¦‚ä¸‹ä¸º å…·ä½“æ‰§è¡Œ æ¨¡å—
 void initialization() {
     for(int idx=0; idx<MAXWIDTH; idx++) {
         bitset<MAXWIDTH> bs(0) ;
         bs[idx] = 1 ;
         addnode(bs, is_LEAF, false, -1) ;
-    }//´´½¨x_0 ~ x_{MAXWIDTH-1}
+    }//åˆ›å»ºx_0 ~ x_{MAXWIDTH-1}
 
     for(int line=0; line<MAXHEIGHT; line++) {
         bitset<MAXWIDTH> bs(0) ;
@@ -152,7 +148,7 @@ void initialization() {
         if(Hash_to_point.find(bs)!=Hash_to_point.end()) {
             int index_of_point = Hash_to_point[bs] ;
 
-            //×¢Òâ!!!£ºÈçÏÂÁ½ĞĞ´úÂëÊÇÔÚÎŞÌõ¼şÏàĞÅ¸ÃµãÒÑÓĞ³õÊ¼ĞĞµÄÇé¿öÏÂ½øĞĞµÄ£¬ĞèÒª±£Ö¤´ËÊ±¸ÃµãÒÑÓĞ³õÊ¼ĞĞ£¬·ñÔò»áµ÷ÓÃÒ°Ö¸Õë
+            //æ³¨æ„!!!ï¼šå¦‚ä¸‹ä¸¤è¡Œä»£ç æ˜¯åœ¨æ— æ¡ä»¶ç›¸ä¿¡è¯¥ç‚¹å·²æœ‰åˆå§‹è¡Œçš„æƒ…å†µä¸‹è¿›è¡Œçš„ï¼Œéœ€è¦ä¿è¯æ­¤æ—¶è¯¥ç‚¹å·²æœ‰åˆå§‹è¡Œï¼Œå¦åˆ™ä¼šè°ƒç”¨é‡æŒ‡é’ˆ
             Nodes[index_of_point].size_of_original_line++ ;
             Nodes[index_of_point].whichline[Nodes[index_of_point].size_of_original_line] = line ;
         }else {
@@ -160,13 +156,13 @@ void initialization() {
                     addnode(bs, To_Be_Splited, true, line) ;
         }
         
-    }//´´½¨Èë¶ÈÎª0µÄ³õÊ¼µã
+    }//åˆ›å»ºå…¥åº¦ä¸º0çš„åˆå§‹ç‚¹
 }
 
-bitset<MAXWIDTH> intersection[MAXWIDTH * MAXWIDTH + 1] ;    int sizeof_intersection ;
-vector<int> intersection_in_each_to_be_splited[MAXWIDTH+1] ;
-bitset<MAXHEIGHT+1> to_be_splited_in_each_intersection[MAXWIDTH * MAXWIDTH + 1] ;
-array<int,4> status_of_intersection[MAXWIDTH * MAXWIDTH + 1] ;
+bitset<MAXWIDTH> intersection[MAXHEIGHT * MAXHEIGHT + 1] ;    int sizeof_intersection ;
+vector<int> intersection_in_each_to_be_splited[MAXHEIGHT+1] ;
+bitset<MAXHEIGHT+1> to_be_splited_in_each_intersection[MAXHEIGHT * MAXHEIGHT + 1] ;
+array<int,4> status_of_intersection[MAXHEIGHT * MAXHEIGHT + 1] ;
 set<array<int,4>,greater<array<int,4>>> rnk ;//{value, useful_length, number_of_use, index_of_intersection}
 
 
@@ -230,7 +226,7 @@ void extension() {
         if(info[2] <= 1)  continue ;
         
         bitset<MAXWIDTH>bs = intersection[info[3]] ;
-        //½« intersection À©Õ¹³ÉÎª extended_point 
+        //å°† intersection æ‰©å±•æˆä¸º extended_point 
         if(Hash_to_point.find(bs) == Hash_to_point.end()) {
             extended_point[++sizeof_extended_point] = 
                     addnode(bs, Extended, false, -1) ;
@@ -239,17 +235,17 @@ void extension() {
                 setnode(Hash_to_point[bs], Extended) ;
                 extended_point[++sizeof_extended_point] = Hash_to_point[bs] ;
             }
-            //Èç¹ûÊÇ extended point, splited point ÔòÌø¹ıÀ©Õ¹½×¶Î
+            //å¦‚æœæ˜¯ extended point, splited point åˆ™è·³è¿‡æ‰©å±•é˜¶æ®µ
         }
 
-        //½«½»¼¯µÄµã±äÎªsplited,¸ü¸Ä¹À¼Û, ¿ÉÄÜ²úÉú extended
-        //×¢Òâ£ºÕâÀï»á½øĞĞ½¨±ß
+        //å°†äº¤é›†çš„ç‚¹å˜ä¸ºsplited,æ›´æ”¹ä¼°ä»·, å¯èƒ½äº§ç”Ÿ extended
+        //æ³¨æ„ï¼šè¿™é‡Œä¼šè¿›è¡Œå»ºè¾¹
         for(int i=1 ; i<=sizeof_to_be_splited_point ; i++) {
             if( to_be_splited_in_each_intersection[info[3]][i] == 0
                 || Hash_to_bitset[to_be_splited_point[i]] == bs)    continue ;
             
             setnode(to_be_splited_point[i], Splited) ;
-            //to_be_splited point Óë extended point ½¨±ß
+            //to_be_splited point ä¸ extended point å»ºè¾¹
             if(to_be_splited_point[i] != Hash_to_point[bs])
                 addedge(to_be_splited_point[i], Hash_to_point[bs]) ;
 
@@ -261,12 +257,12 @@ void extension() {
                     extended_point[++sizeof_extended_point] = index_of_fr ;
                 }
                 else    index_of_fr = Hash_to_point[fr] ;
-                //to_be_splited point Óë extended ½¨±ß   
+                //to_be_splited point ä¸ extended å»ºè¾¹   
                 addedge(to_be_splited_point[i], index_of_fr) ;
                 
             }
 
-            //¸ü¸Ä¹À¼Û
+            //æ›´æ”¹ä¼°ä»·
             for(const int &idx_of_intersection:intersection_in_each_to_be_splited[i]) {
                 array<int,4> info = status_of_intersection[idx_of_intersection] ;
                 to_be_splited_in_each_intersection[info[3]][i] = 0 ;
@@ -283,7 +279,7 @@ void extension() {
         }
     }
 
-    //½«Î´±»²ğ·ÖµÄ to_be_splited Ö±½Ó×ª»»³É extended
+    //å°†æœªè¢«æ‹†åˆ†çš„ to_be_splited ç›´æ¥è½¬æ¢æˆ extended
     for(int i=1 ; i<=sizeof_to_be_splited_point ; i++) {
         int idx = to_be_splited_point[i] ;
         if(Nodes[idx].kind == To_Be_Splited) {
@@ -293,7 +289,7 @@ void extension() {
     }
 
 
-    //Î²²¿´¦Àí£º»ØÊÕÏà¹Ø×ÊÔ´(Ö»±£Áô extended_point  )
+    //å°¾éƒ¨å¤„ç†ï¼šå›æ”¶ç›¸å…³èµ„æº(åªä¿ç•™ extended_point  )
     clear_rubbish() ;
 }
 
@@ -318,8 +314,8 @@ void final_connection_in_the_graph() {
 }
 
 void build_transpose_graph() {
-    for(int from=1 ; from<=idx_node ; from++) {//±éÀúÔ­Í¼ÖĞµÄ³öµã£¨·´Í¼µÄÈëµã£©
-        for(int e=head[from] ; e ; e=Edges[e].nxt) {//Ô­Í¼ÉÏµÄ±ß
+    for(int from=1 ; from<=idx_node ; from++) {//éå†åŸå›¾ä¸­çš„å‡ºç‚¹ï¼ˆåå›¾çš„å…¥ç‚¹ï¼‰
+        for(int e=head[from] ; e ; e=Edges[e].nxt) {//åŸå›¾ä¸Šçš„è¾¹
             int to = Edges[e].to ;
             add_Transpose_Graph_edge(to, from) ;
         }
@@ -327,11 +323,11 @@ void build_transpose_graph() {
 }
 /******************** */
 
-int indgree[MAXHEIGHT*MAXWIDTH] ;
+int indgree[MAXHEIGHT*MAXWIDTH+1] ;
 
-int x_of_node[MAXHEIGHT*MAXWIDTH] , idx_x ;
+int x_of_node[MAXHEIGHT*MAXWIDTH+1] , idx_x ;
 
-array<int,4> result[MAXHEIGHT*MAXWIDTH] ;
+array<int,4> result[MAXHEIGHT*MAXWIDTH+1] ;
 int sizeof_result ;
 
 queue<int> node_queue ;
@@ -346,14 +342,14 @@ void add_result(int to, int from, bool show_y) {
     }
 }
 void get_result_through_topu() {
-    //ÏÈÉè¶¨ x_0 ~ x_{MAXWIDTH-1} ¶ÔÓ¦µÄµã µÄ x_of_node Îª 1 ~ MAXWIDTH
+    //å…ˆè®¾å®š x_0 ~ x_{MAXWIDTH-1} å¯¹åº”çš„ç‚¹ çš„ x_of_node ä¸º 1 ~ MAXWIDTH
     for(int i=0 ; i<MAXWIDTH ; i++) {
         bitset<MAXWIDTH> bs(0) ;
         bs[i] = 1 ;
         x_of_node[Hash_to_point[bs]] = ++idx_x ;
     }
 
-    //ÈçÏÂ±éÀúÊÇÔÚ·´Í¼ÉÏ½øĞĞµÄ
+    //å¦‚ä¸‹éå†æ˜¯åœ¨åå›¾ä¸Šè¿›è¡Œçš„
     for(int from=1 ; from<=idx_node ; from++) {
         for(int e=head_in_Transpose_Graph[from] ; e ; e=Transpose_Graph_Edges[e].nxt) {
             int to = Transpose_Graph_Edges[e].to ;
@@ -405,16 +401,16 @@ signed main() {
     freopen(input_file, "r", stdin) ;
     freopen(output_file, "w", stdout) ;
 
-    //°´ÕÕ±ê×¼¸ñÊ½¶ÁÈë¾ØÕó
+    //æŒ‰ç…§æ ‡å‡†æ ¼å¼è¯»å…¥çŸ©é˜µ
     input_matrix() ;
-    //Õ¹Ê¾¶Áµ½µÄ¾ØÕó
+    //å±•ç¤ºè¯»åˆ°çš„çŸ©é˜µ
     show_matrix() ;
 
-    //³õÊ¼»¯£¬´´½¨ x_0 ~ x_{MAXWIDTH-1} ºÍ Èë¶ÈÎª0µÄµã£¨¾ØÕóµÄĞĞ£©
+    //åˆå§‹åŒ–ï¼Œåˆ›å»º x_0 ~ x_{MAXWIDTH-1} å’Œ å…¥åº¦ä¸º0çš„ç‚¹ï¼ˆçŸ©é˜µçš„è¡Œï¼‰
     initialization() ;
 
 
-    // Ö¸¶¨ÂÖÊı£¬Ê¹µÃ½á¹û°´ÕÕÌ°ĞÄ²ßÂÔ½øĞĞÊÕÁ²
+    // æŒ‡å®šè½®æ•°ï¼Œä½¿å¾—ç»“æœæŒ‰ç…§è´ªå¿ƒç­–ç•¥è¿›è¡Œæ”¶æ•›
     for(int extension_round=1 ; extension_round<=MAXHEIGHT ; extension_round++) {
         extension() ;
 
@@ -423,19 +419,19 @@ signed main() {
     }
 
 
-    //ÊÕÁ²ÂÖÊı½áÊø£¬ ½«Í¼ÖĞµãÉÏÃ»ÓĞÁ÷³öµÄÓĞĞ§Î» Óë x_0 ~ x_{MAXWIDTH-1} ÏàÁ¬
+    //æ”¶æ•›è½®æ•°ç»“æŸï¼Œ å°†å›¾ä¸­ç‚¹ä¸Šæ²¡æœ‰æµå‡ºçš„æœ‰æ•ˆä½ ä¸ x_0 ~ x_{MAXWIDTH-1} ç›¸è¿
     final_connection_in_the_graph() ;
 
 
-    //¹¹½¨·´Í¼
+    //æ„å»ºåå›¾
     build_transpose_graph() ;
 
-    //°´ÕÕ·´Í¼ÍØÆËĞò±£´æ½á¹û
+    //æŒ‰ç…§åå›¾æ‹“æ‰‘åºä¿å­˜ç»“æœ
     get_result_through_topu() ;
 
 
 
-    //Êä³ö½á¹û
+    //è¾“å‡ºç»“æœ
     //print_answer() ;
     show_answer() ;
 
