@@ -306,11 +306,11 @@ void build_transpose_graph() {
 }
 /******************** */
 
-int indgree[MAXHEIGHT*MAXWIDTH] ;
+int indgree[MAXHEIGHT*MAXWIDTH+1] ;
 
-int x_of_node[MAXHEIGHT*MAXWIDTH] , idx_x ;
+int x_of_node[MAXHEIGHT*MAXWIDTH+1] , idx_x ;
 
-array<int,4> result[MAXHEIGHT*MAXWIDTH] ;
+array<int,4> result[MAXHEIGHT*MAXWIDTH+1] ;
 int sizeof_result ;
 
 queue<int> node_queue ;
